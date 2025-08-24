@@ -11,10 +11,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.3.0
+      - name: Report repository checkout
         run: echo "Checking out '${{ github.repository }}' repository..."
 
       - name: Install asdf & tools
         uses: asdf-vm/actions/install@v4.0.2
+      - name: Report asdf tool installation
         run: echo "Installing asdf & tools..."
 
       - name: Install dependencies
