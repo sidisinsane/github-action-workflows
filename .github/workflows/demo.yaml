@@ -11,26 +11,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.3.0
-      - name: Report repository checkout
-        run: echo "Checking out '${{ github.repository }}' repository..."
 
       - name: Install asdf & tools
         uses: asdf-vm/actions/install@v4.0.0
-      - name: Report asdf tool installation
-        run: echo "Installing asdf & tools..."
 
       - name: Install dependencies
         run: |
           echo "Installing dependencies..."
           uv sync --extra build
-          uv run github-action-workflows
 
   test:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Test tool availability
-        run: |
-          echo "Testing tool availability..."
-          python --version
-          uv --version
+      - name: Test project script
+        run: uv run github-action-workflows
