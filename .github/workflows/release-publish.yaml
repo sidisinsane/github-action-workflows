@@ -136,6 +136,7 @@ jobs:
         id: release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{ github.workspace }}
         run: |
           uv run semantic-release -v --strict version --skip-build
           uv run semantic-release publish
