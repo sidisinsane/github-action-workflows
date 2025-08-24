@@ -15,7 +15,7 @@ jobs:
         run: echo "Checking out '${{ github.repository }}' repository..."
 
       - name: Install asdf & tools
-        uses: asdf-vm/actions/install@v4.0.2
+        uses: asdf-vm/actions/install@v4.0.0
       - name: Report asdf tool installation
         run: echo "Installing asdf & tools..."
 
