@@ -1,0 +1,29 @@
+[build-system]
+requires      = [ "hatchling" ]
+build-backend = "hatchling.build"
+
+[project]
+name = "github-action-workflows"
+version = "0.1.0"
+description = "GitHub action workflow demos"
+readme = "README.md"
+license="MIT"
+authors = [
+    { name = "Dirk Sidney Jansen", email = "sidisinsane@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+  "pyyaml~=6.0.2",
+]
+
+[project.urls]
+Homepage      = "https://github.com/sidisinsane/github-action-workflowss"
+Documentation = "https://github.com/sidisinsane/github-action-workflows#readme"
+Repository    = "https://github.com/sidisinsane/github-action-workflows.git"
+"Bug Tracker" = "https://github.com/sidisinsane/github-action-workflows/issues"
+
+[project.optional-dependencies]
+build = [ "python-semantic-release~=10.3.1" ]
+
+[project.scripts]
+github-action-workflows = "github_action_workflows:main"
