@@ -1,0 +1,174 @@
+name: Release and publish
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      dist_artifacts_name: dist
+      dist_artifacts_dir: dist
+      lock_file_artifact: uv.lock
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.3.0
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Force correct release branch on workflow sha
+        run: git checkout -B ${{ github.ref_name }}
+
+      - name: Install asdf & tools
+        uses: asdf-vm/actions/install@v4.0.0
+
+      - name: Cache dependencies
+        uses: actions/cache@v4.2.4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock', 'pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        run: |
+          echo "Installing dependencies..."
+          uv sync --extra build
+
+      - name: Test project script
+        run: uv run github-action-workflows
+
+      - name: Build next version artifacts
+        id: version
+        env:
+          GH_TOKEN: none
+        run: uv run semantic-release -v version --no-commit --no-tag
+
+      - name: Upload distribution artifacts
+        if: ${{ steps.version.outputs.released == 'true' }}
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ env.dist_artifacts_name }}
+          path: ${{ format('{0}/**', env.dist_artifacts_dir) }}
+          if-no-files-found: error
+          retention-days: 2
+
+      - name: Upload lock file artifact
+        if: ${{ steps.version.outputs.released == 'true' }}
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ env.lock_file_artifact }}
+          path: ${{ env.lock_file_artifact }}
+          if-no-files-found: error
+          retention-days: 2
+
+    outputs:
+      new-release-detected: ${{ steps.version.outputs.released }}
+      new-release-version: ${{ steps.version.outputs.version }}
+      new-release-tag: ${{ steps.version.outputs.tag }}
+      new-release-is-prerelease: ${{ steps.version.outputs.is_prerelease }}
+      distribution-artifacts: ${{ env.dist_artifacts_name }}
+      lock-file-artifact: ${{ env.lock_file_artifact }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ needs.build.outputs.new-release-detected == 'true' }}
+    concurrency:
+      group: ${{ github.workflow }}-release-${{ github.ref_name }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository on release branch
+        uses: actions/checkout@v4.3.0
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Force release branch to be at workflow sha
+        run: git reset --hard ${{ github.sha }}
+
+      - name: Install asdf & tools
+        uses: asdf-vm/actions/install@v4.0.0
+
+      - name: Cache dependencies
+        uses: actions/cache@v4.2.4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock', 'pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        run: |
+          echo "Installing dependencies..."
+          uv sync --extra build
+
+      - name: Test project script
+        run: uv run github-action-workflows
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4.3.0
+        id: artifact-download
+        with:
+          name: ${{ needs.build.outputs.distribution-artifacts }}
+          path: dist
+
+      - name: Download lock file artifact
+        uses: actions/download-artifact@v4.3.0
+        with:
+          name: ${{ needs.build.outputs.lock-file-artifact }}
+
+      - name: Stage lock file for version commit
+        run: git add uv.lock
+
+      - name: Create release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          uv run semantic-release -v --strict version --skip-build
+          uv run semantic-release publish
+
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      new-release-version: ${{ steps.release.outputs.version }}
+      new-release-tag: ${{ steps.release.outputs.tag }}
+
+  deploy-test:
+    name: Deploy to TestPyPI
+    runs-on: ubuntu-latest
+    if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-actions-workflows' }}
+    needs:
+      - build
+      - release
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/github-actions-workflows/
+    permissions:
+      id-token: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4.3.0
+        id: artifact-download
+        with:
+          name: ${{ needs.build.outputs.distribution-artifacts }}
+          path: dist
+
+      - name: Publish package distributions to TestPyPI
+        uses: pypa/gh-action-pypi-publish@v1.12.4
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist
+          print-hash: true
+          verbose: true
