@@ -1,3 +1,6 @@
+# Other project-specific
+__prompts/
+
 # Dynamic versioning file
 __version__.py
 

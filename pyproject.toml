@@ -57,7 +57,7 @@ build_command = """
   uv lock --upgrade-package "$PACKAGE_NAME"
   uv build
 """
-commit_message = "chore(release): {version}\n\n{changelog}"
+commit_message = "chore(release): {version}"
 commit_author = "semantic-release <semantic-release>"
 commit_parser = "conventional"
 tag_format = "{version}"
@@ -68,6 +68,10 @@ prerelease_token = "rc"
 prerelease = false
 
 [tool.semantic_release.changelog]
+changelog_file = "CHANGELOG.md"
+output_format = "md"
+mode = "update"
+insertion_flag = "<!-- version list -->"
 exclude_commit_patterns = [
     '''chore(?:\([^)]*?\))?: .+''',
     '''ci(?:\([^)]*?\))?: .+''',
@@ -78,13 +82,6 @@ exclude_commit_patterns = [
     '''Initial [Cc]ommit.*''',
     '''First [Cc]ommit.*''',
 ]
-mode = "update"
-insertion_flag = "<!-- version list -->"
-
-[tool.semantic_release.changelog.default_templates]
-changelog_file = "CHANGELOG.md"
-output_format = "md"
-mask_initial_release = true
 
 [tool.semantic_release.changelog.environment]
 block_start_string = "{%"
