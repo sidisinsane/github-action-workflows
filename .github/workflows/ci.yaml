@@ -6,7 +6,8 @@ on:
     branches: [main]
 
 jobs:
-  ci:
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -77,10 +78,11 @@ jobs:
       distribution-artifacts: ${{ env.dist_artifacts_name }}
       lock-file-artifact: ${{ env.lock_file_artifact }}
 
-  cd:
+  release:
+    name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: ci
-    if: ${{ needs.build.outputs.new-release-detected == 'true' }}
+    needs: build-and-test
+    if: ${{ needs.build-and-test.outputs.new-release-detected == 'true' }}
     concurrency:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
       cancel-in-progress: false
@@ -121,13 +123,13 @@ jobs:
         uses: actions/download-artifact@v4.3.0
         id: artifact-download
         with:
-          name: ${{ needs.build.outputs.distribution-artifacts }}
+          name: ${{ needs.build-and-test.outputs.distribution-artifacts }}
           path: dist
 
       - name: Download lock file artifact
         uses: actions/download-artifact@v4.3.0
         with:
-          name: ${{ needs.build.outputs.lock-file-artifact }}
+          name: ${{ needs.build-and-test.outputs.lock-file-artifact }}
 
       - name: Stage lock file for version commit
         run: git add uv.lock
@@ -146,13 +148,13 @@ jobs:
       new-release-version: ${{ steps.release.outputs.version }}
       new-release-tag: ${{ steps.release.outputs.tag }}
 
-  deploy-test:
+  deploy-testpypi:
     name: Deploy to TestPyPI
     runs-on: ubuntu-latest
     if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
     needs:
-      - ci
-      - cd
+      - build-and-test
+      - release
     environment:
       name: testpypi
       url: https://test.pypi.org/project/github-action-workflows/
@@ -163,7 +165,7 @@ jobs:
         uses: actions/download-artifact@v4.3.0
         id: artifact-download
         with:
-          name: ${{ needs.build.outputs.distribution-artifacts }}
+          name: ${{ needs.build-and-test.outputs.distribution-artifacts }}
           path: dist
 
       - name: Publish package distributions to TestPyPI
