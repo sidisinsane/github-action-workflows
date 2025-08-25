@@ -1,9 +1,17 @@
-name: Demo
+name: Manually Triggered Demo Workflow
 
 # yamllint disable-line rule:truthy
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: Log level
+        required: true
+        default: warning
+      environment:
+        description: Target environment
+        required: false
+        default: staging
 
 jobs:
   build:
