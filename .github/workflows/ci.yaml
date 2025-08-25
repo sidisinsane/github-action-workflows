@@ -1,4 +1,4 @@
-name: Release and publish
+name: Continuous Integration
 
 # yamllint disable-line rule:truthy
 on:
@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -77,9 +77,9 @@ jobs:
       distribution-artifacts: ${{ env.dist_artifacts_name }}
       lock-file-artifact: ${{ env.lock_file_artifact }}
 
-  release:
+  cd:
     runs-on: ubuntu-latest
-    needs: build
+    needs: ci
     if: ${{ needs.build.outputs.new-release-detected == 'true' }}
     concurrency:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
@@ -149,13 +149,13 @@ jobs:
   deploy-test:
     name: Deploy to TestPyPI
     runs-on: ubuntu-latest
-    if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-actions-workflows' }}
+    if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
     needs:
       - build
       - release
     environment:
       name: testpypi
-      url: https://test.pypi.org/project/github-actions-workflows/
+      url: https://test.pypi.org/project/github-action-workflows/
     permissions:
       id-token: write
     steps:
