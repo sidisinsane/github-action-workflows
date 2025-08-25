@@ -151,8 +151,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
     needs:
-      - build
-      - release
+      - ci
+      - cd
     environment:
       name: testpypi
       url: https://test.pypi.org/project/github-action-workflows/
