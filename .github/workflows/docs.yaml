@@ -10,9 +10,12 @@ on:
     branches: [main]
 
 jobs:
-  build-and-test:
+  build-test-deploy:
     name: Build, Test and Deploy
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.3.0
