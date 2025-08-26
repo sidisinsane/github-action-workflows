@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.5 (2025-08-26)
+
+### Bug Fixes
+
+- **ci**: Fix workflow permissions
+  ([`b8ad892`](https://github.com/sidisinsane/github-action-workflows/commit/b8ad89242b75b601dd242eb14d42803c7aa12b74))
+
+
 ## v1.0.4 (2025-08-26)
 
 
