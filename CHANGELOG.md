@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v1.0.3 (2025-08-26)
+
+### Bug Fixes
+
+- **ci**: Fix invalid multi-lines in docs workflow
+  ([`2cd8223`](https://github.com/sidisinsane/github-action-workflows/commit/2cd8223baf8ae5f515f8f0ee3469ff6938f913be))
+
+### Documentation
+
+- Add mkdocs
+  ([`f2a336b`](https://github.com/sidisinsane/github-action-workflows/commit/f2a336b88a76371dde1dd2c6286c0f68489ed3db))
+
+- Add sphinx
+  ([`5e23525`](https://github.com/sidisinsane/github-action-workflows/commit/5e23525b0e522a80978975d61b7ca06b1e6c6ea7))
+
+- Align readme with project
+  ([`2070125`](https://github.com/sidisinsane/github-action-workflows/commit/2070125e655763c1ad50d93e6132ca8d87e46314))
+
+
 ## v1.0.2 (2025-08-25)
 
 ### Bug Fixes
