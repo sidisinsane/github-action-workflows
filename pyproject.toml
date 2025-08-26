@@ -23,6 +23,16 @@ Repository = "https://github.com/sidisinsane/github-action-workflows.git"
 [project.optional-dependencies]
 build = ["python-semantic-release~=10.3.1"]
 
+docs = [
+  "mkdocs~=1.6.1",
+  "mkdocstrings[python]~=0.30.0",
+  "mkdocs-gen-files~=0.5.0",
+  "mkdocs-material~=9.6.18",
+  "mkdocs-nav-weight~=0.2.0",
+  "mkdocs-section-index~=0.3.10",
+  "pymdown-extensions~=10.16.1",
+]
+
 [project.scripts]
 github-action-workflows = "github_action_workflows:main"
 
