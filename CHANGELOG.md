@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.6 (2025-08-26)
+
+### Bug Fixes
+
+- **ci**: Fix docs publishing
+  ([`5e4af89`](https://github.com/sidisinsane/github-action-workflows/commit/5e4af8996167d3b64caad23a3b0b7b57b9fee323))
+
+
 ## v1.0.5 (2025-08-26)
 
 ### Bug Fixes
