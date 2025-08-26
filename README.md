@@ -40,6 +40,8 @@ uv sync --extra docs
 - **Repository**:
   [https://github.com/sidisinsane/github-action-workflows](https://github.com/sidisinsane/github-action-workflows)
 - **Documentation**:
-  [README](https://github.com/sidisinsane/github-action-workflows#readme)
+  - [README](https://github.com/sidisinsane/github-action-workflows#readme)
+  - [Docs](https://sidisinsane.github.io/github-action-workflows/)
+  - [API Reference](https://sidisinsane.github.io/github-action-workflows/reference/)
 - **Issues**:
   [Bug Tracker](https://github.com/sidisinsane/github-action-workflows/issues)
