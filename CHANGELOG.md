@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.1.0 (2025-08-26)
+
+### Features
+
+- **docs**: Add documentation github-pages
+  ([`a5b151a`](https://github.com/sidisinsane/github-action-workflows/commit/a5b151ac33c2ff7a1e0c8196246a392312f702b5))
+
+
 ## v1.0.6 (2025-08-26)
 
 ### Bug Fixes
