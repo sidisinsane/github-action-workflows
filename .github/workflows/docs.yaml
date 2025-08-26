@@ -1,3 +1,4 @@
+# yamllint disable rule:line-length
 name: Documentation
 
 # yamllint disable-line rule:truthy
@@ -41,16 +42,12 @@ jobs:
 
       - name: Test build
         run: |
-          test -d site || \
-          (echo "MkDocs build failed: site/ dnot found" && exit 1)
-          test -d site/reference || \
-          (echo "Sphinx build failed: site/reference/ not found" && exit 1)
+          test -d site || (echo "MkDocs build failed: site/ not found" && exit 1)
+          test -d site/reference || (echo "Sphinx build failed: site/reference/ not found" && exit 1)
           echo "Both documentation builds successful"
 
       - name: Deploy docs
-        if: |
-          github.ref == 'refs/heads/main' || \
-          startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
         uses: peaceiris/actions-gh-pages@v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
