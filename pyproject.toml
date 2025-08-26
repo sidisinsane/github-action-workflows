@@ -31,6 +31,8 @@ docs = [
   "mkdocs-nav-weight~=0.2.0",
   "mkdocs-section-index~=0.3.10",
   "pymdown-extensions~=10.16.1",
+  "sphinx~=8.2.3",
+  "sphinx-favicon~=1.0.1",
 ]
 
 [project.scripts]
