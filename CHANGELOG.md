@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v1.2.0 (2025-08-27)
+
+### Bug Fixes
+
+- **ci**: Fix cannot match any release groups
+  ([`07ce50e`](https://github.com/sidisinsane/github-action-workflows/commit/07ce50ea384fd67d1fa83da468155a0889cdf9bb))
+
+- **ci**: Fix uv command not found
+  ([`7fb8aa3`](https://github.com/sidisinsane/github-action-workflows/commit/7fb8aa39e5fc4afd1f54c61d061f0faabc95b883))
+
+- **ci**: Fix uv not found
+  ([`58de073`](https://github.com/sidisinsane/github-action-workflows/commit/58de07376837410eba009cac75fdc5303b22f2e0))
+
+- **ci**: Fix uv not found
+  ([`94a3938`](https://github.com/sidisinsane/github-action-workflows/commit/94a3938ba62763b70468d9ffabc5d32b66817e84))
+
+### Features
+
+- **ci**: Refactor workflows
+  ([`77eec2c`](https://github.com/sidisinsane/github-action-workflows/commit/77eec2cc6444566eb9b01cb71b47534880599c7b))
+
+
 ## v1.1.0 (2025-08-26)
 
 ### Features
