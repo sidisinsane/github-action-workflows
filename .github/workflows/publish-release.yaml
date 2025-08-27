@@ -10,12 +10,11 @@ on:
     branches: [main]
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  release:
-    name: Create GitHub release
+  github-release:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     permissions:
@@ -55,15 +54,14 @@ jobs:
           uv run semantic-release publish
 
     outputs:
-      released: ${{ steps.release.outputs.released }}
-      new-release-version: ${{ steps.release.outputs.version }}
-      new-release-tag: ${{ steps.release.outputs.tag }}
+      released: ${{ steps.github-release.outputs.released }}
+      new-release-version: ${{ steps.github-release.outputs.version }}
+      new-release-tag: ${{ steps.github-release.outputs.tag }}
 
-  build:
-    name: Build distribution packages
+  build-distribution:
     runs-on: ubuntu-latest
-    needs: release
-    if: ${{ needs.release.outputs.released == 'true' }}
+    needs: github-release
+    if: ${{ needs.github-release.outputs.released == 'true' }}
     permissions:
       contents: read
     env:
@@ -74,7 +72,7 @@ jobs:
       - name: Checkout repository at release tag
         uses: actions/checkout@v4.3.0
         with:
-          ref: ${{ needs.release.outputs.new-release-tag }}
+          ref: ${{ needs.github-release.outputs.new-release-tag }}
           fetch-depth: 0
 
       - name: Install asdf & tools
@@ -120,12 +118,12 @@ jobs:
       distribution-artifacts: ${{ env.dist_artifacts_name }}
       lock-file-artifact: ${{ env.lock_file_artifact }}
 
-  deploy-testpypi:
+  publish-testpypi:
     runs-on: ubuntu-latest
-    if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
+    if: ${{ needs.github-release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
     needs:
-      - release
-      - build
+      - github-release
+      - build-distribution
     environment:
       name: testpypi
       url: https://test.pypi.org/project/github-action-workflows/
@@ -139,7 +137,7 @@ jobs:
         uses: actions/download-artifact@v4.3.0
         id: artifact-download
         with:
-          name: ${{ needs.build.outputs.distribution-artifacts }}
+          name: ${{ needs.build-distribution.outputs.distribution-artifacts }}
           path: dist
 
       - name: Publish package distributions to TestPyPI
@@ -150,12 +148,12 @@ jobs:
           print-hash: true
           verbose: true
 
-  deploy-pypi:
+  publish-pypi:
     runs-on: ubuntu-latest
-    if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
+    if: ${{ needs.github-release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
     needs:
-      - release
-      - build
+      - github-release
+      - build-distribution
     environment:
       name: pypi
       url: https://pypi.org/project/github-action-workflows/
@@ -169,7 +167,7 @@ jobs:
         uses: actions/download-artifact@v4.3.0
         id: artifact-download
         with:
-          name: ${{ needs.build.outputs.distribution-artifacts }}
+          name: ${{ needs.build-distribution.outputs.distribution-artifacts }}
           path: dist
 
       - name: Publish package distributions to PyPI
