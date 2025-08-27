@@ -44,8 +44,23 @@ jobs:
           echo "Installing dependencies..."
           uv sync --extra build
 
+      - name: Check if release is needed
+        id: check
+        env:
+          GH_TOKEN: none
+        run: |
+          # Check if there are commits that would trigger a release
+          if uv run semantic-release version --noop --print 2>/dev/null | grep -q "."; then
+            echo "release_needed=true" >> $GITHUB_OUTPUT
+            echo "Release is needed"
+          else
+            echo "release_needed=false" >> $GITHUB_OUTPUT
+            echo "No release needed - no relevant commits since last release"
+          fi
+
       - name: Create release
         id: release
+        if: ${{ steps.check.outputs.release_needed == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -54,7 +69,7 @@ jobs:
           uv run semantic-release publish
 
     outputs:
-      released: ${{ steps.github-release.outputs.released }}
+      released: ${{ steps.check.outputs.release_needed == 'true' && steps.github-release.outputs.released == 'true' }}
       new-release-version: ${{ steps.github-release.outputs.version }}
       new-release-tag: ${{ steps.github-release.outputs.tag }}
 
