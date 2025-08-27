@@ -14,14 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  release:
+    name: Create GitHub release
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     permissions:
-      contents: read
-    env:
-      dist_artifacts_name: dist
-      dist_artifacts_dir: dist
-      lock_file_artifact: uv.lock
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.3.0
@@ -47,53 +45,36 @@ jobs:
           echo "Installing dependencies..."
           uv sync --extra build
 
-      - name: Build next version artifacts
-        id: version
+      - name: Create release
+        id: release
         env:
-          GH_TOKEN: none
-        run: uv run semantic-release -v version --no-commit --no-tag
-
-      - name: Upload distribution artifacts
-        if: ${{ github.event_name == 'push' && steps.version.outputs.released == 'true' }}
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: ${{ env.dist_artifacts_name }}
-          path: ${{ format('{0}/**', env.dist_artifacts_dir) }}
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Upload lock file artifact
-        if: ${{ github.event_name == 'push' && steps.version.outputs.released == 'true' }}
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: ${{ env.lock_file_artifact }}
-          path: ${{ env.lock_file_artifact }}
-          if-no-files-found: error
-          retention-days: 7
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # This will commit, tag, and create the GitHub release
+          uv run semantic-release -v --strict version --skip-build
+          uv run semantic-release publish
 
     outputs:
-      new-release-detected: ${{ steps.version.outputs.released }}
-      new-release-version: ${{ steps.version.outputs.version }}
-      new-release-tag: ${{ steps.version.outputs.tag }}
-      new-release-is-prerelease: ${{ steps.version.outputs.is_prerelease }}
-      distribution-artifacts: ${{ env.dist_artifacts_name }}
-      lock-file-artifact: ${{ env.lock_file_artifact }}
+      released: ${{ steps.release.outputs.released }}
+      new-release-version: ${{ steps.release.outputs.version }}
+      new-release-tag: ${{ steps.release.outputs.tag }}
 
-  release:
-    name: Create GitHub release
+  build:
+    name: Build distribution packages
     runs-on: ubuntu-latest
-    needs: build
-    if: ${{ github.event_name == 'push' && needs.build.outputs.new-release-detected == 'true' }}
-    concurrency:
-      group: ${{ github.workflow }}-release-${{ github.ref_name }}
-      cancel-in-progress: false
+    needs: release
+    if: ${{ needs.release.outputs.released == 'true' }}
     permissions:
-      contents: write
+      contents: read
+    env:
+      dist_artifacts_name: dist
+      dist_artifacts_dir: dist
+      lock_file_artifact: uv.lock
     steps:
-      - name: Checkout repository on release branch
+      - name: Checkout repository at release tag
         uses: actions/checkout@v4.3.0
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ needs.release.outputs.new-release-tag }}
           fetch-depth: 0
 
       - name: Install asdf & tools
@@ -114,40 +95,37 @@ jobs:
           echo "Installing dependencies..."
           uv sync --extra build
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4.3.0
-        id: artifact-download
-        with:
-          name: ${{ needs.build.outputs.distribution-artifacts }}
-          path: dist
-
-      - name: Download lock file artifact
-        uses: actions/download-artifact@v4.3.0
-        with:
-          name: ${{ needs.build.outputs.lock-file-artifact }}
-
-      - name: Stage lock file for version commit
-        run: git add uv.lock
-
-      - name: Publish release
-        id: release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build distribution packages
         run: |
-          uv run semantic-release -v --strict version --skip-build
-          uv run semantic-release publish
+          echo "Building distribution packages..."
+          uv build
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ env.dist_artifacts_name }}
+          path: ${{ format('{0}/**', env.dist_artifacts_dir) }}
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload lock file artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ env.lock_file_artifact }}
+          path: ${{ env.lock_file_artifact }}
+          if-no-files-found: error
+          retention-days: 7
 
     outputs:
-      released: ${{ steps.release.outputs.released }}
-      new-release-version: ${{ steps.release.outputs.version }}
-      new-release-tag: ${{ steps.release.outputs.tag }}
+      distribution-artifacts: ${{ env.dist_artifacts_name }}
+      lock-file-artifact: ${{ env.lock_file_artifact }}
 
   deploy-testpypi:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
+    if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
     needs:
-      - build
       - release
+      - build
     environment:
       name: testpypi
       url: https://test.pypi.org/project/github-action-workflows/
@@ -174,10 +152,10 @@ jobs:
 
   deploy-pypi:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
+    if: ${{ needs.release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
     needs:
-      - build
       - release
+      - build
     environment:
       name: pypi
       url: https://pypi.org/project/github-action-workflows/
