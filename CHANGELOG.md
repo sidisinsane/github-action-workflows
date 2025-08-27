@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.2.1 (2025-08-27)
+
+### Bug Fixes
+
+- **ci**: Fix dirty releases
+  ([`8126c62`](https://github.com/sidisinsane/github-action-workflows/commit/8126c6223b565f999ee9b625103bddd20a43b67d))
+
+
 ## v1.2.0 (2025-08-27)
 
 ### Bug Fixes
