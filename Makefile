@@ -1,17 +1,23 @@
 release-dry-run:
 	@uv run semantic-release -vv --noop version --print
 
-mkdocs-serve: 
+mkdocs-serve:
 	@uv run mkdocs serve
 
-mkdocs-build: 
+mkdocs-build:
 	@uv run mkdocs build
 
-sphinx-generate: 
+sphinx-generate:
 	@uv run sphinx-apidoc -f -o docs_sphinx src/github_action_workflows
 
-sphinx-build: 
+sphinx-build:
 	@uv run sphinx-build -b html docs_sphinx site/reference
 
 docs-build: mkdocs-build sphinx-generate sphinx-build
 	@echo "Both documentation builds successful."
+
+pre-commit-install:
+	@uv run pre-commit install
+
+pre-commit-run:
+	@uv run pre-commit run --all-files

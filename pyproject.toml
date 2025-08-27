@@ -35,6 +35,8 @@ docs = [
   "sphinx-favicon~=1.0.1",
 ]
 
+dev = ["pre-commit~=4.3.0"]
+
 [project.scripts]
 github-action-workflows = "github_action_workflows:main"
 
@@ -119,8 +121,9 @@ other_allowed_tags = [
   "chore",
   "ci",
   "docs",
-  "style",
+  "release",
   "refactor",
+  "style",
   "test",
 ]
 allowed_tags = [
@@ -131,8 +134,9 @@ allowed_tags = [
   "chore",
   "ci",
   "docs",
-  "style",
+  "release",
   "refactor",
+  "style",
   "test",
 ]
 default_bump_level = 0
