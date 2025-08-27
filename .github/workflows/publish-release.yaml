@@ -110,8 +110,6 @@ jobs:
 
       - name: Install asdf (for uv)
         uses: asdf-vm/actions/install@v4.0.0
-        with:
-          tool_versions: uv
 
       - name: Cache dependencies
         uses: actions/cache@v4.2.4
