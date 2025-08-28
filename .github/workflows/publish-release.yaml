@@ -6,8 +6,6 @@ on:
   push:
     branches: [main]
     tags: ["*"]
-  pull_request:
-    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -69,9 +67,7 @@ jobs:
           uv run semantic-release publish
 
     outputs:
-      released: ${{ steps.check.outputs.release_needed == 'true' && steps.github-release.outputs.released == 'true' }}
-      new-release-version: ${{ steps.github-release.outputs.version }}
-      new-release-tag: ${{ steps.github-release.outputs.tag }}
+      released: ${{ steps.check.outputs.release_needed == 'true' }}
 
   build-distribution:
     runs-on: ubuntu-latest
@@ -84,10 +80,10 @@ jobs:
       dist_artifacts_dir: dist
       lock_file_artifact: uv.lock
     steps:
-      - name: Checkout repository at release tag
+      - name: Checkout repository
         uses: actions/checkout@v4.3.0
         with:
-          ref: ${{ needs.github-release.outputs.new-release-tag }}
+          ref: ${{ github.ref }}
           fetch-depth: 0
 
       - name: Install asdf & tools
@@ -129,19 +125,26 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Get package name
+        id: package
+        run: |
+          PACKAGE_NAME=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['name'])")
+          echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+
     outputs:
       distribution-artifacts: ${{ env.dist_artifacts_name }}
       lock-file-artifact: ${{ env.lock_file_artifact }}
+      package-name: ${{ steps.package.outputs.name }}
 
   publish-testpypi:
     runs-on: ubuntu-latest
-    if: ${{ needs.github-release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
+    if: ${{ needs.github-release.outputs.released == 'true' }}
     needs:
       - github-release
       - build-distribution
     environment:
       name: testpypi
-      url: https://test.pypi.org/project/github-action-workflows/
+      url: https://test.pypi.org/project/${{ needs.build-distribution.outputs.package-name }}/
     permissions:
       id-token: write
     concurrency:
@@ -165,13 +168,13 @@ jobs:
 
   publish-pypi:
     runs-on: ubuntu-latest
-    if: ${{ needs.github-release.outputs.released == 'true' && github.repository == 'sidisinsane/github-action-workflows' }}
+    if: ${{ needs.github-release.outputs.released == 'true' }}
     needs:
       - github-release
       - build-distribution
     environment:
       name: pypi
-      url: https://pypi.org/project/github-action-workflows/
+      url: https://pypi.org/project/${{ needs.build-distribution.outputs.package-name }}/
     permissions:
       id-token: write
     concurrency:

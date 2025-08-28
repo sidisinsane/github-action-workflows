@@ -47,8 +47,6 @@ repos:
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
-        # Default types: build, chore, ci, docs, feat, fix, perf, refactor,
-        # revert, style, test
         args:
           [
             --strict,
@@ -64,9 +62,6 @@ repos:
             refactor,
             style,
             test,
-            --force-scope,
-            chore,
-            fix,
           ]
 
   # Custom version consistency check.
