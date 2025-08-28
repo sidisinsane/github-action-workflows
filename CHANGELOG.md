@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v1.3.0 (2025-08-28)
+
+### Bug Fixes
+
+- **ci**: Debug relase fail
+  ([`759e039`](https://github.com/sidisinsane/github-action-workflows/commit/759e03912a429a7d87ae6442a6f273882d004ddb))
+
+- **ci**: Fix release failing
+  ([`404523d`](https://github.com/sidisinsane/github-action-workflows/commit/404523d148293b3505548aed4afffbd779533bba))
+
+### Features
+
+- **ci**: Add pre-commit
+  ([`49216d6`](https://github.com/sidisinsane/github-action-workflows/commit/49216d6caed9b67d180896462511550d1337fae5))
+
+
 ## v1.2.1 (2025-08-27)
 
 ### Bug Fixes
