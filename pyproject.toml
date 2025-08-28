@@ -16,7 +16,8 @@ dependencies = ["pyyaml~=6.0.2"]
 
 [project.urls]
 Homepage = "https://github.com/sidisinsane/github-action-workflows"
-Documentation = "https://github.com/sidisinsane/github-action-workflows#readme"
+Documentation = "https://sidisinsane.github.io/github-action-workflows/"
+"API Reference" = "https://sidisinsane.github.io/github-action-workflows/reference/"
 Repository = "https://github.com/sidisinsane/github-action-workflows.git"
 "Bug Tracker" = "https://github.com/sidisinsane/github-action-workflows/issues"
 

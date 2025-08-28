@@ -51,15 +51,16 @@ jobs:
           echo "Current git log (last 5 commits):"
           git log --oneline -5
           echo ""
-          echo "Current tags:"
-          git tag --sort=-version:refname | head -5
-          echo ""
-          echo "Running semantic-release with verbose output:"
-          echo "Command: uv run semantic-release -vv --noop version --print"
-          OUTPUT=$(uv run semantic-release -vv --noop version --print 2>&1)
-          echo "Full output:"
-          echo "$OUTPUT"
-          echo ""
+          # Uncomment for extensive debugging
+          # echo "Current tags:"
+          # git tag --sort=-version:refname | head -5
+          # echo ""
+          # echo "Running semantic-release with verbose output:"
+          # echo "Command: uv run semantic-release -vv --noop version --print"
+          # OUTPUT=$(uv run semantic-release -vv --noop version --print 2>&1)
+          # echo "Full output:"
+          # echo "$OUTPUT"
+          # echo ""
 
           # Check if there are commits that would trigger a release
           if echo "$OUTPUT" | grep -q "0\."; then
